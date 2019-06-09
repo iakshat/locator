@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+
+
+    <title>Your Location</title>
+    <style>
+        #mymap {
+            height: 360px;
+            ;
+            width: 840px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Your Location is: </h1>
+    <div id="os">Your OS here</div>
+    <div id="data"></div>
+
+    <div id="loader">
+        <img src="/loader.gif" alt="Getting Your Location Please wait....." width="400px">
+    </div>
+    <div id="afterLoad" style="display: none">
+        <div>Latitude: <span id="lat"></span></div>
+        <div>Longitude: <span id="lng"></span></div>
+
+        <div id="mymap"></div>
+    </div>
+
+    <script>
+        var OSName = "";
+        if (navigator.appVersion.indexOf("Win") != -1) OSName += "Windows ";
+        if (navigator.appVersion.indexOf("Mac") != -1) OSName += "MacOS ";
+        if (navigator.appVersion.indexOf("X11") != -1) OSName += "UNIX ";
+        if (navigator.appVersion.indexOf("Android") != -1) OSName += "Android ";
+        if (navigator.appVersion.indexOf("Linux") != -1) OSName += "Linux ";
+
+        document.getElementById("os").innerHTML = ('Your OS: ' + OSName);
+        document.getElementById("data").innerHTML = (JSON.stringify(window.navigator));
+
+        var lat, lng;
+        function onPositionUpdate(position) {
+            lat = position.coords.latitude;
+            lng = position.coords.longitude;
+            console.log(lat);
+            console.log(lng);
+            //alert("Current position: " + lat + " " + lng);
+            document.getElementById("afterLoad").style.display = "block";
+            document.getElementById("loader").style.display = "none";
+
+            document.getElementById("lat").innerHTML = lat;
+            document.getElementById("lng").innerHTML = lng;
+
+            const mymap = L.map('mymap').setView([0, 0], 1);
+
+            const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+
+            //const tileUrl = "http://a.tile.openstreetmap.fr/hot/${z}/${x}/${y}.png";
+
+            const tileUrl = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+            const tiles = L.tileLayer(tileUrl, { attribution })
+            tiles.addTo(mymap);
+
+            const marker = L.marker([0, 0]);
+            marker.addTo(mymap);
+            marker.setLatLng([lat, lng]);
+            mymap.setView([lat, lng], 13);
+        }
+
+        if (navigator.geolocation)
+            navigator.geolocation.getCurrentPosition(onPositionUpdate);
+        else
+            document.getElementById("a").innerHTML = ("navigator.geolocation is not available");
+
+
+    </script>
+
+
+
+</body>
+
+</html>
